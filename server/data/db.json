@@ -1,0 +1,218 @@
+{
+  "categories": [
+    { "id": "all", "name": "Tất cả danh mục", "icon": "fa-border-all" },
+    { "id": "rental", "name": "Thuê quần áo", "icon": "fa-clock-rotate-left" },
+    { "id": "fashion", "name": "Shop thời trang", "icon": "fa-shirt" },
+    { "id": "food_beverage", "name": "Đồ ăn - Đồ uống", "icon": "fa-utensils" },
+    { "id": "beauty", "name": "Làm đẹp", "icon": "fa-wand-magic-sparkles" }
+  ],
+  "products": [
+    {
+      "id": "prod-rental-1",
+      "name": "Cho Thuê Váy Dạ Hội Luxury Kim Tuyến Sang Trọng (Gói 3 Ngày)",
+      "category": "rental",
+      "price": 450000,
+      "originalPrice": 650000,
+      "rating": 4.9,
+      "reviewsCount": 86,
+      "inStock": 10,
+      "image": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80",
+      "badge": "Thuê nhiều nhất",
+      "description": "Dịch vụ cho thuê đầm dạ hội thiết kế độc quyền đính kim tuyến lấp lánh, kèm dịch vụ giặt hấp tiệt trùng trước khi giao.",
+      "specs": {
+        "Thời gian thuê": "3 Ngày (Gia hạn +100k/ngày)",
+        "Size khả dụng": "S, M, L (Hỗ trợ bóp/nới eo)",
+        "Dịch vụ đi kèm": "Giặt hấp chuẩn spa, giao tận nơi 2H"
+      },
+      "reviews": [
+        { "id": "r1", "userName": "Trần Thị Mai", "rating": 5, "comment": "Váy mới tinh thơm tho, lên dáng đi sự kiện ai cũng khen hết lời!", "date": "2026-08-02" }
+      ]
+    },
+    {
+      "id": "prod-rental-2",
+      "name": "Cho Thuê Áo Dài Thêu Tay Cổ Truyền Cao Cấp",
+      "category": "rental",
+      "price": 350000,
+      "originalPrice": 500000,
+      "rating": 4.8,
+      "reviewsCount": 42,
+      "inStock": 15,
+      "image": "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80",
+      "badge": "Hot Rental",
+      "description": "Áo dài truyền thống chất lụa tơ tằm thêu hoa sen tỉ mỉ bằng tay. Thích hợp dịp cưới hỏi, lễ tết và chụp ảnh kỷ yếu.",
+      "specs": {
+        "Thời gian thuê": "3 Ngày",
+        "Chất liệu": "Lụa tơ tằm gấm thêu tay",
+        "Phụ kiện tặng kèm": "Mấn đội đầu đồng bộ"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-rental-3",
+      "name": "Cho Thuê Bộ Vest Nam Hàn Quốc Lịch Lãm",
+      "category": "rental",
+      "price": 500000,
+      "originalPrice": 750000,
+      "rating": 4.9,
+      "reviewsCount": 54,
+      "inStock": 12,
+      "image": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
+      "badge": "Luxury Vest",
+      "description": "Combo cho thuê Suit nam dáng Slimfit Hàn Quốc bao gồm Áo Vest, Quần tây và Cà vạt cao cấp.",
+      "specs": {
+        "Thời gian thuê": "3 Ngày",
+        "Trọn bộ bao gồm": "Áo Suit, Quần Tây, Cà Vạt, Khăn gài ngực",
+        "Màu sắc": "Đen Tuyển, Xanh Navy, Ghi Xám"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-fashion-1",
+      "name": "Đầm Lụa Satin Cổ V Dáng Xòe Sang Trọng",
+      "category": "fashion",
+      "price": 890000,
+      "originalPrice": 1200000,
+      "rating": 4.8,
+      "reviewsCount": 112,
+      "inStock": 25,
+      "image": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=80",
+      "badge": "Bestseller",
+      "description": "Thiết kế váy đầm lụa Satin cao cấp tôn dáng mềm mại, đường may tinh tế thích hợp đi làm, đi chơi và dự tiệc.",
+      "specs": {
+        "Chất liệu": "Lụa Satin dệt ánh kim mềm mại",
+        "Kiểu dáng": "Cổ V khoét nhẹ, chiết eo dáng xòe nhẹ",
+        "Màu sắc": "Đỏ Rượu, Trắng Ngọc Trai, Xanh Emerald"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-fashion-2",
+      "name": "Áo Sơ Mi Nam Lụa Ý Cao Cấp Form Slim-Fit",
+      "category": "fashion",
+      "price": 550000,
+      "originalPrice": 750000,
+      "rating": 4.7,
+      "reviewsCount": 78,
+      "inStock": 40,
+      "image": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80",
+      "badge": "Mới",
+      "description": "Áo sơ mi nam chống nhăn độc quyền, chất liệu lụa Ý mỏng nhẹ thoáng mát, form tôn dáng vẻ nam tính quý phái.",
+      "specs": {
+        "Vải": "Cotton Lụa Ý cao cấp chống nhăn",
+        "Form dáng": "Slim-Fit vừa vặn body"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-food-1",
+      "name": "Set Trà Sữa Ô Long Kem Trứng Nướng Premium (Combo 4 Ly)",
+      "category": "food_beverage",
+      "price": 180000,
+      "originalPrice": 240000,
+      "rating": 4.9,
+      "reviewsCount": 150,
+      "inStock": 50,
+      "image": "https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=800&q=80",
+      "badge": "Giao 30 Phút",
+      "description": "Trà sữa Ô long lá trà đậm đà kết hợp với lớp kem trứng nướng cháy thơm béo ngậy cùng trân trùng giòn sần sật.",
+      "specs": {
+        "Combo bao gồm": "4 Ly Trà sữa 700ml + Full topping trân châu",
+        "Độ ngọt": "Tùy chọn 30%, 50%, 70%, 100%",
+        "Đóng gói": "Cốc ép màng kèm túi giữ nhiệt"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-food-2",
+      "name": "Bánh Mì Nướng Bơ Tỏi Phô Mai Pháp Handmade",
+      "category": "food_beverage",
+      "price": 120000,
+      "originalPrice": 150000,
+      "rating": 4.8,
+      "reviewsCount": 94,
+      "inStock": 30,
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+      "badge": "Nóng Hổi",
+      "description": "Ổ bánh mì nướng bơ tỏi giòn rụm đẫm phô mai Mozzarella tan chảy ngậy béo thơm lừng.",
+      "specs": {
+        "Trọng lượng": "Set 2 Ổ bánh mì lớn",
+        "Phô mai": "Mozzarella nhập khẩu Pháp"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-beauty-1",
+      "name": "Bộ Serum Căng Bóng Dưỡng Trắng Da Hàn Quốc (50ml)",
+      "category": "beauty",
+      "price": 790000,
+      "originalPrice": 1100000,
+      "rating": 4.9,
+      "reviewsCount": 135,
+      "inStock": 20,
+      "image": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80",
+      "badge": "Chính Hãng",
+      "description": "Serum chiết xuất Niacinamide 10% & Hyaluronic Acid cấp ẩm sâu, phục hồi da mẩn đỏ và dưỡng da sáng mịn glass skin.",
+      "specs": {
+        "Dung tích": "50ml lọ thủy tinh cao cấp",
+        "Thành phần chính": "Niacinamide 10%, HA 2%, Peptide",
+        "Xuất xứ": "Made in Korea"
+      },
+      "reviews": []
+    },
+    {
+      "id": "prod-beauty-2",
+      "name": "Son Thỏi Hiệu Ứng Lì Mịn Như Nhung Matte Lipstick",
+      "category": "beauty",
+      "price": 420000,
+      "originalPrice": 550000,
+      "rating": 4.8,
+      "reviewsCount": 67,
+      "inStock": 45,
+      "image": "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=800&q=80",
+      "badge": "Hot Color",
+      "description": "Son lì mềm môi không gây khô ráp, lên màu chuẩn ngay từ lần quẹt đầu tiên với màu Đỏ Đất quyến rũ.",
+      "specs": {
+        "Tông màu": "Đỏ Đất Rạng Rỡ (Brick Red)",
+        "Độ bám màu": "Lên đến 8-10 tiếng"
+      },
+      "reviews": []
+    }
+  ],
+  "users": [
+    {
+      "id": "user-1",
+      "fullName": "Nguyễn Văn Anh",
+      "email": "demo@gmail.com",
+      "phone": "0912345678",
+      "password": "password123",
+      "address": "123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+      "createdAt": "2026-08-01T10:00:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-882910",
+      "userId": "user-1",
+      "customerName": "Nguyễn Văn Anh",
+      "customerPhone": "0912345678",
+      "customerEmail": "demo@gmail.com",
+      "shippingAddress": "123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+      "paymentMethod": "COD",
+      "items": [
+        {
+          "id": "prod-rental-1",
+          "name": "Cho Thuê Váy Dạ Hội Luxury Kim Tuyến Sang Trọng (Gói 3 Ngày)",
+          "price": 450000,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "subtotal": 450000,
+      "shippingFee": 30000,
+      "discount": 0,
+      "total": 480000,
+      "status": "Đã giao hàng",
+      "createdAt": "2026-08-05T14:30:00.000Z"
+    }
+  ]
+}
