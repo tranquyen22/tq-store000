@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
+import { AuthProvider } from '@/features/auth/AuthContext';
+import { CartProvider } from '@/features/cart/CartContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

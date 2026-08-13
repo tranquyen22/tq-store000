@@ -9,8 +9,6 @@ export const Hero: React.FC<HeroProps> = ({ onSelectCategory }) => {
   return (
     <section className="relative my-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 border border-slate-800 p-8 sm:p-12 shadow-2xl text-white">
-        
-        {/* Decorative Background Aura */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
 
@@ -35,7 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ onSelectCategory }) => {
             <div className="flex flex-wrap items-center gap-3">
               <a
                 href="#products-catalog"
-                className="px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-sky-500 via-blue-600 to-pink-500 rounded-xl hover:shadow-lg hover:shadow-sky-500/30 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2"
+                className="px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-sky-500 via-blue-600 to-pink-500 rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Khám phá ngay</span>
@@ -43,7 +41,7 @@ export const Hero: React.FC<HeroProps> = ({ onSelectCategory }) => {
 
               <button
                 onClick={() => { onSelectCategory('rental'); document.getElementById('products-catalog')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="px-5 py-3 text-sm font-semibold text-slate-200 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-xl transition-all inline-flex items-center gap-2"
+                className="px-5 py-3 text-sm font-semibold text-slate-200 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl transition-all inline-flex items-center gap-2"
               >
                 <Clock className="w-4 h-4 text-sky-400" />
                 <span>Thuê quần áo ngay</span>
@@ -51,50 +49,49 @@ export const Hero: React.FC<HeroProps> = ({ onSelectCategory }) => {
             </div>
           </div>
 
-          {/* Quick Category Feature Cards */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <button 
               onClick={() => { onSelectCategory('rental'); document.getElementById('products-catalog')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group hover:scale-[1.02]"
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-3">
                 <Clock className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-sm text-white">Thuê quần áo</h4>
-              <p className="text-xs text-slate-400 mt-1">Đầm dạ hội, Áo dài, Vest</p>
+              <p className="text-xs text-slate-400 mt-1">Đầm dạ hội, Áo dài</p>
             </button>
 
             <button 
               onClick={() => { onSelectCategory('fashion'); document.getElementById('products-catalog')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group hover:scale-[1.02]"
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-3">
                 <Shirt className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-sm text-white">Shop thời trang</h4>
-              <p className="text-xs text-slate-400 mt-1">Đầm lụa, Sơ mi, Sneaker</p>
+              <p className="text-xs text-slate-400 mt-1">Đầm lụa, Sơ mi nam</p>
             </button>
 
             <button 
               onClick={() => { onSelectCategory('food_beverage'); document.getElementById('products-catalog')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group hover:scale-[1.02]"
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
                 <Utensils className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-sm text-white">Đồ ăn - Đồ uống</h4>
-              <p className="text-xs text-slate-400 mt-1">Trà sữa, Bánh mì bơ tỏi</p>
+              <p className="text-xs text-slate-400 mt-1">Trà sữa, Bánh mì</p>
             </button>
 
             <button 
               onClick={() => { onSelectCategory('beauty'); document.getElementById('products-catalog')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group hover:scale-[1.02]"
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
                 <Wand2 className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-sm text-white">Làm đẹp</h4>
-              <p className="text-xs text-slate-400 mt-1">Serum, Son lì chính hãng</p>
+              <p className="text-xs text-slate-400 mt-1">Serum, Son lì Matte</p>
             </button>
           </div>
         </div>

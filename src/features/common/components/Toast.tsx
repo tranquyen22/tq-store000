@@ -9,9 +9,7 @@ interface ToastProps {
 
 export const Toast: React.FC<ToastProps> = ({ message, type = 'info', onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 3500);
+    const timer = setTimeout(() => onClose(), 3500);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -28,7 +26,7 @@ export const Toast: React.FC<ToastProps> = ({ message, type = 'info', onClose })
   };
 
   return (
-    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl ${getBorderColor()} animate-slideLeft text-sm font-semibold text-slate-800 dark:text-slate-200 min-w-[280px]`}>
+    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl ${getBorderColor()} animate-slideLeft text-sm font-semibold min-w-[280px]`}>
       {getIcon()}
       <span className="flex-1">{message}</span>
       <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">

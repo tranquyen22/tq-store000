@@ -1,24 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-
-interface UserProfile {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-}
+import { supabase } from '@/lib/supabase';
+import { UserProfile, AuthResponse } from './types';
 
 interface AuthContextType {
   user: UserProfile | null;
   supabaseUser: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (identifier: string, password: string) => Promise<{ success: boolean; message: string }>;
-  signUp: (data: { fullName: string; email: string; phone: string; password: string }) => Promise<{ success: boolean; message: string }>;
+  signIn: (identifier: string, pass: string) => Promise<AuthResponse>;
+  signUp: (data: { fullName: string; email: string; phone: string; password: string }) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
-  updateProfile: (data: { fullName: string; phone: string; address: string }) => Promise<{ success: boolean; message: string }>;
+  updateProfile: (data: { fullName: string; phone: string; address: string }) => Promise<AuthResponse>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Synchronize user profile state from localStorage or Supabase
   const syncLocalProfile = (userObj: any) => {
     if (!userObj) {
       setUser(null);
@@ -48,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // Check current Supabase Auth session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setSupabaseUser(session?.user ?? null);
@@ -63,13 +54,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         const saved = localStorage.getItem('tq_current_user');
         if (saved) {
-          try { setUser(JSON.parse(saved)); } catch (e) { setUser(null); }
+          try { setUser(JSON.parse(saved)); } 
+          catch (error) { 
+            console.error('[ERROR][AuthContext.tsx - getSession]:', error);
+            setUser(null); 
+          }
         }
       }
       setLoading(false);
+    }).catch(error => {
+      console.error('[ERROR][AuthContext.tsx - getSessionAsync]:', error);
+      setLoading(false);
     });
 
-    // Listen for Auth changes in realtime
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setSupabaseUser(session?.user ?? null);
@@ -87,107 +84,70 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Supabase Auth SignUp
-  const signUp = async ({ fullName, email, phone, password }: { fullName: string; email: string; phone: string; password: string }) => {
+  const signUp = async ({ fullName, email, phone, password }: { fullName: string; email: string; phone: string; password: string }): Promise<AuthResponse> => {
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName, phone }
-        }
+        email, password, options: { data: { full_name: fullName, phone } }
       });
-
       if (error) {
-        // Fallback for demo client-side auth if email confirmation or rate limit triggered
-        const mockProfile: UserProfile = {
-          id: 'user-' + Date.now(),
-          fullName,
-          email,
-          phone,
-          address: ''
-        };
-        syncLocalProfile(mockProfile);
+        console.error('[ERROR][AuthContext.tsx - signUpSupabase]:', error);
+        syncLocalProfile({ id: 'user-' + Date.now(), fullName, email, phone, address: '' });
         return { success: true, message: 'Đăng ký tài khoản mới thành công!' };
       }
-
-      if (data.user) {
-        const newProfile: UserProfile = {
-          id: data.user.id,
-          fullName,
-          email,
-          phone,
-          address: ''
-        };
-        syncLocalProfile(newProfile);
-      }
+      if (data.user) syncLocalProfile({ id: data.user.id, fullName, email, phone, address: '' });
       return { success: true, message: 'Đăng ký tài khoản thành công!' };
-    } catch (err: any) {
-      return { success: false, message: err.message || 'Lỗi khi đăng ký tài khoản' };
+    } catch (error) {
+      console.error('[ERROR][AuthContext.tsx - signUp]:', error);
+      return { success: false, message: 'Lỗi khi đăng ký tài khoản' };
     }
   };
 
-  // Supabase Auth SignIn (Supports Email or Phone)
-  const signIn = async (identifier: string, password: string) => {
+  const signIn = async (identifier: string, password: string): Promise<AuthResponse> => {
     try {
       let emailToUse = identifier.trim();
-      
-      // Check if identifier is phone number format
-      if (!emailToUse.includes('@')) {
-        emailToUse = `${emailToUse.replace(/\s+/g, '')}@tqstore.vn`;
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: emailToUse,
-        password,
-      });
-
+      if (!emailToUse.includes('@')) emailToUse = `${emailToUse.replace(/\s+/g, '')}@tqstore.vn`;
+      const { data, error } = await supabase.auth.signInWithPassword({ email: emailToUse, password });
       if (error) {
-        // Fallback check against demo credentials
+        console.error('[ERROR][AuthContext.tsx - signInSupabase]:', error);
         if ((identifier === 'demo@gmail.com' || identifier === '0912345678') && password === 'password123') {
-          const demoUser: UserProfile = {
-            id: 'user-demo-1',
-            fullName: 'Nguyễn Văn Anh',
-            email: 'demo@gmail.com',
-            phone: '0912345678',
-            address: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh'
-          };
-          syncLocalProfile(demoUser);
+          syncLocalProfile({ id: 'user-demo-1', fullName: 'Nguyễn Văn Anh', email: 'demo@gmail.com', phone: '0912345678', address: '123 Nguyễn Huệ, Q1, TP.HCM' });
           return { success: true, message: 'Đăng nhập thành công với tài khoản mẫu!' };
         }
         return { success: false, message: 'Email / SĐT hoặc Mật khẩu không đúng!' };
       }
-
       if (data.user) {
         syncLocalProfile({
-          id: data.user.id,
-          email: data.user.email,
+          id: data.user.id, email: data.user.email,
           fullName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
-          phone: data.user.user_metadata?.phone,
-          address: data.user.user_metadata?.address
+          phone: data.user.user_metadata?.phone, address: data.user.user_metadata?.address
         });
       }
-
       return { success: true, message: 'Đăng nhập thành công!' };
-    } catch (err: any) {
-      return { success: false, message: err.message || 'Lỗi khi đăng nhập' };
+    } catch (error) {
+      console.error('[ERROR][AuthContext.tsx - signIn]:', error);
+      return { success: false, message: 'Lỗi khi đăng nhập' };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('[ERROR][AuthContext.tsx - signOut]:', error);
+    }
     syncLocalProfile(null);
   };
 
-  const updateProfile = async (data: { fullName: string; phone: string; address: string }) => {
+  const updateProfile = async (data: { fullName: string; phone: string; address: string }): Promise<AuthResponse> => {
     if (!user) return { success: false, message: 'Chưa đăng nhập' };
     const updated = { ...user, ...data };
     syncLocalProfile(updated);
-    
     if (supabaseUser) {
-      await supabase.auth.updateUser({
-        data: { full_name: data.fullName, phone: data.phone, address: data.address }
-      });
+      try {
+        await supabase.auth.updateUser({ data: { full_name: data.fullName, phone: data.phone, address: data.address } });
+      } catch (error) {
+        console.error('[ERROR][AuthContext.tsx - updateProfile]:', error);
+      }
     }
     return { success: true, message: 'Cập nhật thông tin thành công!' };
   };

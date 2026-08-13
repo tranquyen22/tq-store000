@@ -1,24 +1,3 @@
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  category: 'rental' | 'fashion' | 'food_beverage' | 'beauty' | string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviewsCount: number;
-  inStock: number;
-  image: string;
-  badge?: string;
-  description: string;
-  specs?: Record<string, string>;
-}
-
 export interface CartItem {
   id: string;
   name: string;
@@ -53,12 +32,4 @@ export interface Order {
   total: number;
   status: string;
   created_at: string;
-}
-
-export interface UserProfile {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
 }
