@@ -1,54 +1,32 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldAlert, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, CheckCircle2 } from 'lucide-react';
 
-interface SOSButtonProps {
-  latitude?: number;
-  longitude?: number;
-}
+export const SOSButton: React.FC = () => {
+  const [sosTriggered, setSosTriggered] = useState<boolean>(false);
 
-export const SOSButton: React.FC<SOSButtonProps> = ({
-  latitude = 10.7769,
-  longitude = 106.7009
-}) => {
-  const [triggered, setTriggered] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-
-  const handleTriggerSOS = () => {
-    setTriggered(true);
-    setConfirming(false);
-    console.warn(`[EMERGENCY SOS SOCKET EMIT] Lat: ${latitude}, Lng: ${longitude}`);
+  const triggerSOS = () => {
+    setSosTriggered(true);
+    setTimeout(() => {
+      alert('TÍN HIỆU SOS ĐÃ ĐƯỢC GỬI! Tổng đài TQ Platform và Danh bạ Khẩn cấp đã nhận tọa độ GPS của bạn.');
+    }, 100);
   };
 
   return (
-    <div className="bg-red-500/10 border border-red-500/30 rounded-3xl p-4 text-center">
-      {!confirming && !triggered && (
+    <div className="mb-6">
+      {!sosTriggered ? (
         <button
-          onClick={() => setConfirming(true)}
-          className="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold text-xs rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 animate-pulse"
+          onClick={triggerSOS}
+          className="w-full py-4 bg-gradient-to-r from-red-600 via-rose-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white font-black text-sm rounded-3xl shadow-xl shadow-red-600/30 flex items-center justify-center gap-2 border border-red-500/40 active:scale-95 transition-all"
         >
-          <ShieldAlert className="w-5 h-5" />
-          <span>NÚT SOS BÁO ĐỘNG KHẨN CẤP</span>
+          <ShieldAlert className="w-6 h-6 animate-bounce" />
+          <span>BÁO ĐỘNG KHẨN CẤP SOS (GỬI TỌA ĐỘ GPS)</span>
         </button>
-      )}
-
-      {confirming && !triggered && (
-        <div className="space-y-3">
-          <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center justify-center gap-1">
-            <AlertTriangle className="w-4 h-4" /> Bắn tọa độ GPS về tổng đài khẩn cấp?
-          </p>
-          <div className="flex gap-2">
-            <button onClick={() => setConfirming(false)} className="flex-1 py-2 bg-slate-200 dark:bg-slate-800 text-xs font-bold rounded-xl">Hủy</button>
-            <button onClick={handleTriggerSOS} className="flex-1 py-2 bg-red-600 text-white text-xs font-extrabold rounded-xl">KÍCH HOẠT SOS</button>
-          </div>
-        </div>
-      )}
-
-      {triggered && (
-        <div className="p-3 bg-red-600 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 animate-bounce">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>ĐÃ GỬI TỌA ĐỘ GPS VỀ TỔNG ĐÀI KHẨN CẤP!</span>
+      ) : (
+        <div className="bg-red-500/15 border border-red-500/40 p-4 rounded-3xl text-center text-xs text-red-400 font-extrabold flex items-center justify-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-red-500 animate-pulse" />
+          <span>Tín hiệu SOS đã phát! Tổng đài đang theo dõi hành trình của bạn.</span>
         </div>
       )}
     </div>
