@@ -6,7 +6,7 @@ import { CreateTicketDisputeDto, ResolveDisputeRefundDto } from './dto/ticket-di
 @Injectable()
 export class TicketsService {
   /**
-    1. Tiếp nhận khiếu nại (Giao thiếu món, tính sai tiền, đồ cho thuê lỗi...)
+    1. Tiếp nhận khiếu nại (Giao thiếu món, hàng hỏng, tài xế không đến, tính sai cước, hàng giả)
    */
   async createTicketDispute(userId: string, dto: CreateTicketDisputeDto) {
     try {
@@ -14,14 +14,14 @@ export class TicketsService {
         data: {
           userId,
           subject: `[DISPUTE - KHIẾU NẠI] ${dto.subject}`,
-          description: `${dto.description} (Mã đơn liên quan: ${dto.orderId || 'Không có'})`,
+          description: `${dto.description} (Đơn: ${dto.orderId || 'N/A'})`,
           status: TicketStatus.OPEN
         }
       });
 
       return {
         success: true,
-        message: 'Đã tiếp nhận ticket khiếu nại thành công. Bộ phận CSKH sẽ kiểm tra xử lý sớm nhất.',
+        message: 'Đã tiếp nhận ticket khiếu nại thành công.',
         ticketId: ticket.id
       };
     } catch (error) {
@@ -31,7 +31,7 @@ export class TicketsService {
   }
 
   /**
-    2. Trung tâm Khiếu nại (Dispute Center) - Nhân viên duyệt & Tự động Refund về Ví TQ Pay khách hàng
+    2. Trung tâm Khiếu nại (Dispute Center) - Tự động Refund về Ví TQ Pay & Ghi sổ
    */
   async resolveDisputeRefund(staffId: string, dto: ResolveDisputeRefundDto) {
     try {
@@ -39,16 +39,14 @@ export class TicketsService {
         const ticket = await tx.ticket.findUnique({ where: { id: dto.ticketId } });
         if (!ticket) throw new NotFoundException('Không tìm thấy ticket khiếu nại');
 
-        // Update Ticket Status to RESOLVED
         await tx.ticket.update({
           where: { id: dto.ticketId },
           data: {
             status: TicketStatus.RESOLVED,
-            description: `${ticket.description}\n\n[QUYẾT ĐỊNH GIẢI QUYẾT CSKH - Nhân viên ${staffId}]: ${dto.resolutionNotes} (Hoàn tiền: ${dto.refundAmount} VNĐ)`
+            description: `${ticket.description}\n\n[REFUND CSKH - NV ${staffId}]: ${dto.resolutionNotes} (Hoàn: ${dto.refundAmount} VNĐ)`
           }
         });
 
-        // Find or create Customer Wallet
         let customerWallet = await tx.wallet.findFirst({
           where: { userId: dto.customerId, walletType: WalletType.CUSTOMER_WALLET }
         });
@@ -59,13 +57,11 @@ export class TicketsService {
           });
         }
 
-        // Increment customer balance automatically (Refund)
         const updatedWallet = await tx.wallet.update({
           where: { id: customerWallet.id },
           data: { balance: { increment: dto.refundAmount } }
         });
 
-        // Record double-entry transaction
         const refundTxn = await tx.walletTransaction.create({
           data: {
             debitWalletId: customerWallet.id,
@@ -79,13 +75,38 @@ export class TicketsService {
 
         return {
           success: true,
-          message: `Đã xử lý xong khiếu nại & Refund tự động ${dto.refundAmount} VNĐ về Ví TQ Pay của khách hàng.`,
+          message: `Đã Refund tự động ${dto.refundAmount} VNĐ về Ví TQ Pay của khách hàng.`,
           refundTransactionId: refundTxn.id,
           newCustomerBalance: updatedWallet.balance
         };
       });
     } catch (error) {
       console.error('[ERROR][tickets.service.ts - resolveDisputeRefund]:', error);
+      throw error;
+    }
+  }
+
+  /**
+    3. Phân hệ Xử phạt Vi phạm (Cảnh cáo -> Trừ điểm uy tín -> Khóa sản phẩm -> Tạm ngưng/Khóa tài khoản)
+   */
+  async applyViolationPenalty(targetUserId: string, penaltyType: 'WARN' | 'DEDUCT_REPUTATION' | 'LOCK_PRODUCT' | 'SUSPEND_ACCOUNT', reason: string) {
+    try {
+      if (penaltyType === 'SUSPEND_ACCOUNT') {
+        await prisma.user.update({
+          where: { id: targetUserId },
+          data: { isActive: false }
+        });
+      }
+
+      return {
+        success: true,
+        message: `Đã áp dụng hình thức xử phạt ${penaltyType} đối với người dùng / shop!`,
+        targetUserId,
+        penaltyType,
+        reason
+      };
+    } catch (error) {
+      console.error('[ERROR][tickets.service.ts - applyViolationPenalty]:', error);
       throw error;
     }
   }

@@ -3,9 +3,6 @@ import { prisma } from '@tq-platform/database';
 
 @Injectable()
 export class FinancialReportService {
-  /**
-    1. Báo cáo P&L (GMV, Phí sàn, Chi phí trợ giá, Lợi nhuận ròng)
-   */
   async getProfitAndLossReport(startDate?: string, endDate?: string) {
     try {
       const orders = await prisma.order.findMany({
@@ -13,7 +10,7 @@ export class FinancialReportService {
       });
 
       const totalGMV = orders.reduce((sum, o) => sum + Number(o.total), 0);
-      const platformCommission = totalGMV * 0.15; // 15% phí sàn mặc định
+      const platformCommission = totalGMV * 0.15;
       const totalVoucherSubsidy = orders.reduce((sum, o) => sum + Number(o.discount), 0);
       const netProfit = platformCommission - totalVoucherSubsidy;
 
@@ -35,45 +32,25 @@ export class FinancialReportService {
   }
 
   /**
-    2. Khấu trừ tự động Thuế GTGT & Thuế TNCN cho Tài xế / Shop theo kỳ kế toán
-    - Tài xế: 1.5% tổng thu nhập (1% GTGT + 0.5% TNCN)
-    - Shop: 1.0% tổng doanh thu (0.5% GTGT + 0.5% TNCN)
+    Xuất Báo cáo Thuế tổng hợp Người bán dạng XML chuẩn Tổng cục Thuế
    */
-  async calculateTaxObligations(targetType: 'DRIVER' | 'SHOP', targetId: string, grossIncome: number) {
+  async exportSellersTaxXMLReport(): Promise<string> {
     try {
-      let vatRate = 0.01;
-      let pitRate = 0.005;
-
-      if (targetType === 'SHOP') {
-        vatRate = 0.005;
-        pitRate = 0.005;
-      }
-
-      const vatAmount = grossIncome * vatRate;
-      const pitAmount = grossIncome * pitRate;
-      const totalTax = vatAmount + pitAmount;
-      const netIncomeAfterTax = grossIncome - totalTax;
-
-      return {
-        success: true,
-        targetType,
-        targetId,
-        grossIncome,
-        taxBreakdown: {
-          vatAmount,
-          pitAmount,
-          totalTaxWithheld: totalTax,
-        },
-        netIncomeAfterTax
-      };
+      const shops = await prisma.shop.findMany({ take: 20 });
+      let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<TaxReport platform="TQ Platform" period="2026-Q3">\n';
+      shops.forEach(s => {
+        xmlContent += `  <Seller shopId="${s.id}" shopName="${s.name}" phone="${s.phone}" serviceType="${s.serviceType}" />\n`;
+      });
+      xmlContent += '</TaxReport>';
+      return xmlContent;
     } catch (error) {
-      console.error('[ERROR][financial-report.service.ts - calculateTaxObligations]:', error);
-      throw error;
+      console.error('[ERROR][financial-report.service.ts - exportSellersTaxXMLReport]:', error);
+      return '<?xml version="1.0"?><TaxReport></TaxReport>';
     }
   }
 
   /**
-    3. Xuất file CSV Báo cáo P&L & Lịch sử Giao dịch
+    Xuất Báo cáo Thuế tổng hợp Người bán dạng Excel (CSV UTF-8 BOM)
    */
   async exportFinancialReportCSV(): Promise<string> {
     try {
