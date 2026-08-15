@@ -5,8 +5,9 @@ import { AdminHeader } from '../components/AdminHeader';
 import { LiveMapCenter } from '../components/LiveMapCenter';
 import { SystemConfigMaintenance } from '../components/SystemConfigMaintenance';
 import { StaffAuditLogsManager } from '../components/StaffAuditLogsManager';
+import { ContentAIControl } from '../components/ContentAIControl';
 
-export default function SuperAdminPage() {
+export default function SuperAdminMainPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
       
@@ -16,17 +17,20 @@ export default function SuperAdminPage() {
         isMaintenanceActive={false}
       />
 
-      {/* Main Command Center Modules */}
+      {/* Main Command Center Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
         
-        {/* Realtime Live Operations Radar Map & SOS Alert Center */}
+        {/* Realtime Live Map Radar & Emergency SOS Alert Panel */}
         <LiveMapCenter />
 
-        {/* System Rates, Feature Toggles & Granular Maintenance Mode */}
+        {/* Maintenance Countdown Scheduler & Feature Toggles */}
         <SystemConfigMaintenance />
 
-        {/* Staff CRUD, Granular RBAC Permissions & Audit Logs Inspector */}
+        {/* Staff Granular RBAC Permissions & Audit Logs Inspector */}
         <StaffAuditLogsManager />
+
+        {/* Custom Link Slug, Synthetic Sales Volume & AI Review Generator */}
+        <ContentAIControl />
 
       </main>
 

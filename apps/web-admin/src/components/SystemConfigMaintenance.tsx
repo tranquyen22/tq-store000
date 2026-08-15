@@ -1,104 +1,98 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sliders, ShieldAlert, Save, Check } from 'lucide-react';
-import { SystemRatesConfig, MaintenanceConfig } from '../types';
+import { ShieldAlert, Clock, Save, ToggleLeft, ToggleRight } from 'lucide-react';
+
+export interface MaintenanceFeatureMap {
+  isGlobalMaintenance: boolean;
+  isTqPayWalletPaused: boolean;
+  isVietQrDepositPaused: boolean;
+  isCashCodPaused: boolean;
+  isXuRewardPaused: boolean;
+  isRentalServicePaused: boolean;
+  isTaxiBookingPaused: boolean;
+}
 
 export const SystemConfigMaintenance: React.FC = () => {
-  const [rates, setRates] = useState<SystemRatesConfig>({
-    platformCommissionRate: 15,
-    xuCashbackRate: 2,
-    tqPayDiscountRate: 5
-  });
-
-  const [maintenance, setMaintenance] = useState<MaintenanceConfig>({
+  const [maintenance, setMaintenance] = useState<MaintenanceFeatureMap>({
     isGlobalMaintenance: false,
+    isTqPayWalletPaused: false,
     isVietQrDepositPaused: false,
-    isWithdrawalPaused: false,
+    isCashCodPaused: false,
+    isXuRewardPaused: false,
     isRentalServicePaused: false,
-    isTaxiBookingPaused: false
+    isTaxiBookingPaused: false,
   });
 
-  const [savedMessage, setSavedMessage] = useState('');
+  const [countdownMinutes, setCountdownMinutes] = useState<number>(30);
+  const [savedMsg, setSavedMsg] = useState('');
 
-  const handleSaveRates = () => {
-    setSavedMessage('Đã lưu cấu hình tỷ lệ % phí sàn & ưu đãi thành công!');
-    setTimeout(() => setSavedMessage(''), 3000);
+  const toggleFeature = (key: keyof MaintenanceFeatureMap) => {
+    setMaintenance(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const toggleMaintenanceItem = (key: keyof MaintenanceConfig) => {
-    setMaintenance(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleSaveMaintenance = () => {
+    setSavedMsg(`Đã đặt lịch đếm ngược bảo trì ${countdownMinutes} phút và lưu trạng thái công tắc!`);
+    setTimeout(() => setSavedMsg(''), 3000);
   };
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
       
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 mb-6">
+        <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <ShieldAlert className="w-5 h-5 text-red-500" />
+          <span>Cấu Hình Bảo Trì Hệ Thống & Đóng/Mở Riêng Rẽ Từng Tính Năng</span>
+        </h2>
+
+        <button onClick={handleSaveMaintenance} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow">
+          <Save className="w-4 h-4" /> <span>Lưu Cấu Hình Bảo Trì</span>
+        </button>
+      </div>
+
+      {savedMsg && <p className="text-emerald-500 font-bold text-xs mb-4">{savedMsg}</p>}
+
+      {/* Countdown Timer Scheduler */}
+      <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mb-6 text-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-sky-500" />
+          <strong className="text-slate-900 dark:text-white">Lịch Đếm Ngược Bảo Trì (Countdown Schedule):</strong>
+        </div>
+        <div className="flex items-center gap-2">
+          <span>Thời gian đếm ngược trước khi kích hoạt (phút):</span>
+          <input
+            type="number"
+            value={countdownMinutes}
+            onChange={(e) => setCountdownMinutes(Number(e.target.value))}
+            className="w-16 px-2 py-1 bg-white dark:bg-slate-800 border rounded-lg font-bold text-center outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Granular Feature Toggles Matrix */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
         
-        {/* 1. Commission & Discount Rates Adjuster */}
-        <div>
-          <h3 className="font-extrabold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-sky-500" />
-            <span>Cấu Hình Tỷ Lệ % Phí Sàn & Ưu Đãi Toàn Hệ Thống</span>
-          </h3>
-
-          <div className="space-y-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
-            <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">% Phí Sàn Mặc Định (% Commission):</label>
-              <input type="number" value={rates.platformCommissionRate} onChange={(e) => setRates({ ...rates, platformCommissionRate: Number(e.target.value) })} className="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-slate-800 font-bold outline-none" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+        {[
+          { key: 'isGlobalMaintenance', label: 'Bảo Trì TOÀN BỘ Hệ Thống', desc: 'Khóa toàn bộ truy cập sàn' },
+          { key: 'isTqPayWalletPaused', label: 'Tạm Dừng Cổng Ví TQ Pay', desc: 'Ngưng thanh toán qua Ví' },
+          { key: 'isVietQrDepositPaused', label: 'Tạm Dừng Nạp Tiền VietQR', desc: 'Khóa sinh mã nạp VietQR' },
+          { key: 'isCashCodPaused', label: 'Tạm Dừng Thanh Toán COD', desc: 'Chỉ nhận thanh toán online' },
+          { key: 'isXuRewardPaused', label: 'Tạm Dừng Tích Điểm TQ Xu', desc: 'Khóa cộng xu thưởng' },
+          { key: 'isRentalServicePaused', label: 'Tạm Dừng Dịch Vụ Cho Thuê Đồ', desc: 'Khóa giỏ hàng cho thuê' },
+        ].map(item => {
+          const isPaused = maintenance[item.key as keyof MaintenanceFeatureMap];
+          return (
+            <div key={item.key} className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 ${isPaused ? 'bg-red-500/10 border-red-500/40' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}>
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">% Hoàn TQ Xu:</label>
-                <input type="number" value={rates.xuCashbackRate} onChange={(e) => setRates({ ...rates, xuCashbackRate: Number(e.target.value) })} className="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-slate-800 font-bold outline-none" />
+                <strong className={`block ${isPaused ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'}`}>{item.label}</strong>
+                <span className="text-[10px] text-slate-400">{item.desc}</span>
               </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">% GIảm giá Ví TQ Pay:</label>
-                <input type="number" value={rates.tqPayDiscountRate} onChange={(e) => setRates({ ...rates, tqPayDiscountRate: Number(e.target.value) })} className="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-slate-800 font-bold outline-none" />
-              </div>
+              <button onClick={() => toggleFeature(item.key as keyof MaintenanceFeatureMap)} className="text-2xl outline-none">
+                {isPaused ? <ToggleRight className="w-7 h-7 text-red-500" /> : <ToggleLeft className="w-7 h-7 text-slate-400" />}
+              </button>
             </div>
-
-            <button onClick={handleSaveRates} className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl flex items-center justify-center gap-1.5">
-              <Save className="w-4 h-4" /> <span>Lưu cấu hình tỷ lệ %</span>
-            </button>
-            {savedMessage && <p className="text-emerald-500 font-bold text-[11px] text-center">{savedMessage}</p>}
-          </div>
-        </div>
-
-        {/* 2. Granular Maintenance Mode Switcher */}
-        <div>
-          <h3 className="font-extrabold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-red-500" />
-            <span>Chế Độ Bảo Trì Hệ Thống Phân Cấp (Maintenance Mode)</span>
-          </h3>
-
-          <div className="space-y-2.5 text-xs">
-            <div className={`flex items-center justify-between p-3 rounded-2xl border ${maintenance.isGlobalMaintenance ? 'bg-red-500/10 border-red-500/40' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}>
-              <div>
-                <strong className="block text-slate-900 dark:text-white">Bảo trì TOÀN BỘ Hệ thống:</strong>
-                <span className="text-[11px] text-slate-400">Khóa truy cập tất cả ứng dụng Web & Mobile</span>
-              </div>
-              <input type="checkbox" checked={maintenance.isGlobalMaintenance} onChange={() => toggleMaintenanceItem('isGlobalMaintenance')} className="w-5 h-5 accent-red-500 cursor-pointer" />
-            </div>
-
-            <div className={`flex items-center justify-between p-3 rounded-2xl border ${maintenance.isVietQrDepositPaused ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}>
-              <span className="font-bold">Tạm dừng cổng Nạp tiền VietQR</span>
-              <input type="checkbox" checked={maintenance.isVietQrDepositPaused} onChange={() => toggleMaintenanceItem('isVietQrDepositPaused')} className="w-4 h-4 accent-amber-500 cursor-pointer" />
-            </div>
-
-            <div className={`flex items-center justify-between p-3 rounded-2xl border ${maintenance.isWithdrawalPaused ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}>
-              <span className="font-bold">Tạm dừng tính năng Rút tiền về Ngân hàng</span>
-              <input type="checkbox" checked={maintenance.isWithdrawalPaused} onChange={() => toggleMaintenanceItem('isWithdrawalPaused')} className="w-4 h-4 accent-amber-500 cursor-pointer" />
-            </div>
-
-            <div className={`flex items-center justify-between p-3 rounded-2xl border ${maintenance.isRentalServicePaused ? 'bg-amber-500/10 border-amber-500/40' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}>
-              <span className="font-bold">Tạm dừng Dịch vụ Cho thuê trang phục</span>
-              <input type="checkbox" checked={maintenance.isRentalServicePaused} onChange={() => toggleMaintenanceItem('isRentalServicePaused')} className="w-4 h-4 accent-amber-500 cursor-pointer" />
-            </div>
-          </div>
-        </div>
+          );
+        })}
 
       </div>
 

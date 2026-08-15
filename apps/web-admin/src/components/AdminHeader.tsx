@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, ShieldAlert, Cpu, User } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Cpu } from 'lucide-react';
 
 interface AdminHeaderProps {
   adminName: string;
@@ -16,9 +16,9 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
-        {/* Brand & Super Admin Title */}
+        {/* Brand & Title */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 text-white font-extrabold flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-black flex items-center justify-center shadow-lg">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -30,11 +30,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                 </span>
               )}
             </h1>
-            <span className="text-[11px] text-slate-400">Trung tâm Quản trị Vận hành Tối cao</span>
+            <span className="text-[11px] text-slate-400">Trung tâm Điều hành & Quản trị Tối cao</span>
           </div>
         </div>
 
-        {/* Status Indicators & Profile */}
+        {/* Health Status & Admin User */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-slate-300">
             <Cpu className="w-4 h-4 text-emerald-400 animate-pulse" />
