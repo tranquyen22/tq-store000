@@ -12,26 +12,13 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    if (!requiredRoles || requiredRoles.length === 0) {
+    if (!requiredRoles) {
       return true;
     }
-
     const { user } = context.switchToHttp().getRequest();
-    if (!user || !user.role) {
-      throw new ForbiddenException('Bạn không có quyền truy cập tài nguyên này');
+    if (!user || !requiredRoles.includes(user.role)) {
+      throw new ForbiddenException('Tài khoản của bạn không có quyền truy cập chức năng này');
     }
-
-    // Super Admin has all access
-    if (user.role === UserRole.SUPER_ADMIN) {
-      return true;
-    }
-
-    const hasRole = requiredRoles.includes(user.role);
-    if (!hasRole) {
-      throw new ForbiddenException(`Yêu cầu vai trò: ${requiredRoles.join(', ')}`);
-    }
-
     return true;
   }
 }

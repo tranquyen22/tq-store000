@@ -3,22 +3,18 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
-import { PermissionsGuard } from './guards/permissions.guard';
-import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
-import { AuditService } from '../audit/audit.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'tq_jwt_super_secret_key_2026',
-      signOptions: { expiresIn: '1d' },
+      secret: process.env.JWT_SECRET || 'TQ_PLATFORM_SECRET_KEY_2026',
+      signOptions: { expiresIn: '7d' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuditService, JwtAuthGuard, RolesGuard, PermissionsGuard, AuditLogInterceptor],
-  exports: [AuthService, JwtAuthGuard, RolesGuard, PermissionsGuard, AuditLogInterceptor, JwtModule],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

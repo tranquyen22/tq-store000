@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { UserRole } from '@tq-platform/types';
 
 export class RegisterDto {
@@ -6,6 +6,7 @@ export class RegisterDto {
   @IsString()
   fullName: string;
 
+  @IsNotEmpty({ message: 'Email không được để trống' })
   @IsEmail({}, { message: 'Email không đúng định dạng' })
   email: string;
 
@@ -14,14 +15,10 @@ export class RegisterDto {
   phone: string;
 
   @IsNotEmpty({ message: 'Mật khẩu không được để trống' })
-  @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
+  @MinLength(6, { message: 'Mật khẩu phải từ 6 ký tự trở lên' })
   password: string;
 
-  @IsOptional()
-  @IsString()
-  citizenId?: string;
-
-  @IsOptional()
+  @IsNotEmpty({ message: 'Vai trò người dùng' })
   @IsEnum(UserRole, { message: 'Vai trò người dùng không hợp lệ' })
-  role?: UserRole;
+  role: UserRole;
 }

@@ -1,12 +1,10 @@
 import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma } from '@tq-platform/database';
-import { UserRole, WalletType } from '@tq-platform/types';
-import { maskPhoneNumber } from '@tq-platform/utils';
-import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { RequestPasswordResetDto } from './dto/reset-password.dto';
+import { RequestResetPasswordDto, ApproveResetPasswordDto } from './dto/reset-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +16,7 @@ export class AuthService {
         where: { OR: [{ email: dto.email }, { phone: dto.phone }] }
       });
       if (existingUser) {
-        throw new BadRequestException('Email hoặc Số điện thoại này đã được đăng ký!');
+        throw new BadRequestException('Email hoặc Số điện thoại này đã tồn tại trong hệ thống');
       }
 
       const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -28,18 +26,12 @@ export class AuthService {
           email: dto.email,
           phone: dto.phone,
           passwordHash,
-          citizenId: dto.citizenId || null,
-          role: dto.role || UserRole.CUSTOMER,
+          role: dto.role
         }
       });
 
-      // Initialize Customer Wallet
-      await prisma.wallet.create({
-        data: { userId: user.id, walletType: WalletType.CUSTOMER_WALLET, balance: 0 }
-      });
-
-      const tokens = await this.generateTokens(user.id, user.role, []);
-      return { success: true, message: 'Đăng ký tài khoản mới thành công', user: this.sanitizeUser(user), ...tokens };
+      const token = this.generateToken(user);
+      return { success: true, message: 'Đăng ký tài khoản thành công', user, accessToken: token };
     } catch (error) {
       console.error('[ERROR][auth.service.ts - register]:', error);
       throw error;
@@ -49,32 +41,26 @@ export class AuthService {
   async login(dto: LoginDto) {
     try {
       const user = await prisma.user.findFirst({
-        where: { OR: [{ email: dto.identifier }, { phone: dto.identifier }] },
-        include: { staffPermissions: true }
+        where: { OR: [{ email: dto.phoneOrEmail }, { phone: dto.phoneOrEmail }] },
+        include: { staffPerms: true }
       });
-
       if (!user) {
         throw new UnauthorizedException('Số điện thoại/Email hoặc mật khẩu không chính xác');
       }
 
-      if (!user.isActive) {
-        throw new UnauthorizedException('Tài khoản của bạn đã bị khóa hoặc tạm ngưng');
-      }
-
-      const isPasswordMatch = await bcrypt.compare(dto.password, user.passwordHash);
-      if (!isPasswordMatch) {
+      const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
+      if (!isPasswordValid) {
         throw new UnauthorizedException('Số điện thoại/Email hoặc mật khẩu không chính xác');
       }
 
-      const permissions = user.staffPermissions.map(sp => sp.permission);
-      const tokens = await this.generateTokens(user.id, user.role, permissions);
+      const permissions = user.staffPerms.map(p => p.permission);
+      const token = this.generateToken(user, permissions);
 
       return {
         success: true,
         message: 'Đăng nhập thành công',
-        user: this.sanitizeUser(user),
-        permissions,
-        ...tokens
+        user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role },
+        accessToken: token
       };
     } catch (error) {
       console.error('[ERROR][auth.service.ts - login]:', error);
@@ -82,46 +68,51 @@ export class AuthService {
     }
   }
 
-  async requestPasswordReset(dto: RequestPasswordResetDto) {
+  async requestPasswordReset(dto: RequestResetPasswordDto) {
     try {
       const user = await prisma.user.findFirst({
-        where: { OR: [{ email: dto.identifier }, { phone: dto.identifier }] }
+        where: { OR: [{ email: dto.phoneOrEmail }, { phone: dto.phoneOrEmail }] }
       });
       if (!user) throw new NotFoundException('Không tìm thấy tài khoản hợp lệ');
 
-      await prisma.ticket.create({
+      const ticket = await prisma.ticket.create({
         data: {
           userId: user.id,
-          subject: `[Yêu cầu Cấp lại Mật khẩu] - ${user.fullName}`,
-          description: `Lý do: ${dto.reason}. SĐT: ${user.phone}`,
+          subject: '[RESET_PASSWORD] Yêu cầu cấp lại mật khẩu',
+          description: `Tài khoản ${user.email} (${user.phone}) yêu cầu reset mật khẩu vào danh sách chờ Admin duyệt.`,
+          status: 'OPEN'
         }
       });
 
-      return { success: true, message: 'Đã gửi yêu cầu cấp lại mật khẩu tới Super Admin. Hệ thống sẽ xử lý sớm nhất.' };
+      return {
+        success: true,
+        message: 'Đã gửi yêu cầu cấp lại mật khẩu. Vui lòng chờ Super Admin phê duyệt.',
+        ticketId: ticket.id
+      };
     } catch (error) {
       console.error('[ERROR][auth.service.ts - requestPasswordReset]:', error);
       throw error;
     }
   }
 
-  async approvePasswordReset(targetUserId: string, operatorId: string) {
+  async approvePasswordReset(dto: ApproveResetPasswordDto) {
     try {
-      const user = await prisma.user.findUnique({ where: { id: targetUserId } });
-      if (!user) throw new NotFoundException('Không tìm thấy tài khoản người dùng');
+      const user = await prisma.user.findUnique({ where: { id: dto.userId } });
+      if (!user) throw new NotFoundException('Không tìm thấy tài khoản');
 
-      const randomPass = 'TQ@' + Math.floor(100000 + Math.random() * 900000);
-      const newHash = await bcrypt.hash(randomPass, 10);
+      const randomPassword = `TQ#${Math.floor(100000 + Math.random() * 900000)}`;
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
 
       await prisma.user.update({
-        where: { id: targetUserId },
-        data: { passwordHash: newHash }
+        where: { id: dto.userId },
+        data: { passwordHash }
       });
 
       return {
         success: true,
-        message: `Đã cấp lại mật khẩu mới cho ${user.fullName}`,
-        newTemporaryPassword: randomPass,
-        maskedPhone: maskPhoneNumber(user.phone)
+        message: 'Đã phê duyệt cấp lại mật khẩu mới ngẫu nhiên',
+        userId: user.id,
+        newRandomPassword: randomPassword
       };
     } catch (error) {
       console.error('[ERROR][auth.service.ts - approvePasswordReset]:', error);
@@ -129,18 +120,12 @@ export class AuthService {
     }
   }
 
-  private async generateTokens(userId: string, role: UserRole, permissions: string[]) {
-    const payload = { sub: userId, role, permissions };
-    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '1d' });
-    const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '7d' });
-    return { accessToken, refreshToken };
-  }
-
-  private sanitizeUser(user: any) {
-    const { passwordHash, citizenId, ...rest } = user;
-    return {
-      ...rest,
-      phone: maskPhoneNumber(user.phone),
-    };
+  private generateToken(user: any, permissions: string[] = []) {
+    return this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      permissions
+    });
   }
 }

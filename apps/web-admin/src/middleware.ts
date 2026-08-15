@@ -1,48 +1,48 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { UserRole } from '@tq-platform/types';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('tq_access_token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
-  const userRole = request.cookies.get('tq_user_role')?.value as UserRole | undefined;
+  const token = request.cookies.get('tq_token')?.value;
+  const userRole = request.cookies.get('tq_role')?.value;
 
-  const { pathname } = request.nextUrl;
+  const url = request.nextUrl.clone();
 
-  // Allow public access to login page & static files
-  if (pathname.startsWith('/login') || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-    return NextResponse.next();
+  // If no token found, redirect to login page
+  if (!token && !url.pathname.startsWith('/login')) {
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 
-  // Redirect to login if unauthenticated
-  if (!token || !userRole) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', pathname);
-    return NextResponse.redirect(loginUrl);
+  // Multi-Role Auto Redirection Logic strictly based on 5 Roles
+  if (userRole) {
+    switch (userRole) {
+      case 'customer':
+        return NextResponse.redirect(new URL('http://localhost:3001/dashboard', request.url));
+
+      case 'shop_owner':
+      case 'shop_staff':
+        return NextResponse.redirect(new URL('http://localhost:3002/dashboard', request.url));
+
+      case 'driver':
+        return NextResponse.redirect(new URL('http://localhost:3003/online', request.url));
+
+      case 'super_admin':
+      case 'employee':
+        // Super Admin & Employee stay on web-admin portal
+        if (url.pathname === '/login') {
+          url.pathname = '/';
+          return NextResponse.redirect(url);
+        }
+        return NextResponse.next();
+
+      default:
+        break;
+    }
   }
 
-  // Role-based Automatic Redirection Logic
-  switch (userRole) {
-    case UserRole.CUSTOMER:
-      return NextResponse.redirect(new URL('https://customer.tqplatform.vn', request.url));
-
-    case UserRole.SHOP_OWNER:
-      return NextResponse.redirect(new URL('https://shop.tqplatform.vn', request.url));
-
-    case UserRole.DRIVER:
-      // Drivers must use the Expo Mobile Driver App (app-driver)
-      return NextResponse.redirect(new URL('/driver-notice', request.url));
-
-    case UserRole.SUPER_ADMIN:
-    case UserRole.ADMIN:
-    case UserRole.STAFF:
-      // Authorized to enter Admin Portal (web-admin)
-      return NextResponse.next();
-
-    default:
-      return NextResponse.redirect(new URL('/login', request.url));
-  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
