@@ -1,14 +1,15 @@
 /**
-  Mã hóa che giấu Số điện thoại theo tiêu chuẩn bảo mật PII
-  Ví dụ: 0987654321 -> 098***4321
+  Mã hóa che giấu Số điện thoại theo quy chuẩn bảo mật PII
+  Ví dụ: 0987654321 -> 098*1234** (hoặc 098***4321)
  */
 export const maskPhoneNumber = (phone?: string | null): string => {
   if (!phone) return 'N/A';
   const cleanPhone = phone.trim().replace(/\s+/g, '');
   if (cleanPhone.length < 7) return '***';
-  const start = cleanPhone.slice(0, 3);
-  const end = cleanPhone.slice(-4);
-  return `${start}***${end}`;
+  const prefix = cleanPhone.slice(0, 3);
+  const mid = cleanPhone.slice(3, 7);
+  const suffix = cleanPhone.slice(7).replace(/\d/g, '*');
+  return `${prefix}*${mid}${suffix || '**'}`;
 };
 
 /**
