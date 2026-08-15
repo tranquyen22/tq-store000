@@ -1,13 +1,13 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { prisma } from '@tq-platform/database';
 import { WalletType, TransactionType } from '@tq-platform/types';
-import { RequestDepositDto } from './dto/deposit.dto';
-import { RequestWithdrawalDto } from './dto/withdraw.dto';
+import { RequestDepositDto, ApproveDepositDto } from './dto/deposit.dto';
+import { RequestWithdrawalDto, ProcessWithdrawalDto } from './dto/withdraw.dto';
 
 @Injectable()
 export class PaymentsService {
   /**
-    1. Luồng nạp tiền VietQR: Sinh mã VietQR & mã tham chiếu duy nhất TQDEP_<userId>_<time>
+    1. Luồng nạp tiền VietQR
    */
   async requestDeposit(userId: string, dto: RequestDepositDto) {
     try {
@@ -16,15 +16,10 @@ export class PaymentsService {
 
       return {
         success: true,
-        message: 'Đã tạo yêu cầu nạp tiền VietQR. Vui lòng chuyển khoản đúng số tiền và nội dung.',
+        message: 'Đã tạo yêu cầu nạp tiền VietQR',
         referenceCode,
         amount: dto.amount,
-        vietQrUrl: qrUrl,
-        bankInfo: {
-          bankName: 'Ngân hàng MBBank',
-          accountNo: '123456789',
-          accountName: 'CONG TY TQ PLATFORM'
-        }
+        vietQrUrl: qrUrl
       };
     } catch (error) {
       console.error('[ERROR][payments.service.ts - requestDeposit]:', error);
@@ -33,42 +28,40 @@ export class PaymentsService {
   }
 
   /**
-    2. Phê duyệt Nạp tiền (Super Admin) - Atomic Database Transaction (ACID)
+    2. Admin Phê duyệt Nạp tiền (ACID Transaction)
    */
-  async approveDeposit(userId: string, referenceCode: string, amount: number) {
+  async approveDeposit(dto: ApproveDepositDto) {
     try {
       return await prisma.$transaction(async (tx) => {
         let wallet = await tx.wallet.findFirst({
-          where: { userId, walletType: WalletType.CUSTOMER_WALLET }
+          where: { userId: dto.targetUserId, walletType: WalletType.CUSTOMER_WALLET }
         });
 
         if (!wallet) {
           wallet = await tx.wallet.create({
-            data: { userId, walletType: WalletType.CUSTOMER_WALLET, balance: 0 }
+            data: { userId: dto.targetUserId, walletType: WalletType.CUSTOMER_WALLET, balance: 0 }
           });
         }
 
-        // Increment wallet balance atomically
         const updatedWallet = await tx.wallet.update({
           where: { id: wallet.id },
-          data: { balance: { increment: amount } }
+          data: { balance: { increment: dto.amount } }
         });
 
-        // Record double-entry transaction
         const transaction = await tx.walletTransaction.create({
           data: {
             debitWalletId: wallet.id,
             creditWalletId: wallet.id,
-            amount,
+            amount: dto.amount,
             type: TransactionType.DEPOSIT,
-            referenceId: referenceCode,
-            description: `Nạp tiền VietQR thành công (${referenceCode})`,
+            referenceId: dto.transactionId,
+            description: `Admin phê duyệt nạp tiền VietQR (${dto.transactionId})`,
           }
         });
 
         return {
           success: true,
-          message: 'Đã phê duyệt cộng số dư ví thành công',
+          message: 'Đã phê duyệt nạp tiền thành công',
           newBalance: updatedWallet.balance,
           transactionId: transaction.id
         };
@@ -80,7 +73,7 @@ export class PaymentsService {
   }
 
   /**
-    3. Luồng Rút tiền: Khóa số dư tức thì bằng DB Transaction chống Rút tiền kép (Double Spending)
+    3. Luồng Rút tiền & Khóa số dư tức thì chống Rút tiền kép (Double Spending)
    */
   async requestWithdrawal(userId: string, dto: RequestWithdrawalDto) {
     try {
@@ -90,16 +83,15 @@ export class PaymentsService {
         });
 
         if (!wallet || Number(wallet.balance) < dto.amount) {
-          throw new BadRequestException('Số dư ví không đủ để thực hiện lệnh rút tiền này');
+          throw new BadRequestException('Số dư ví không đủ để rút tiền');
         }
 
-        // Lock balance immediately (decrement atomically)
+        // Lock balance immediately
         await tx.wallet.update({
           where: { id: wallet.id },
           data: { balance: { decrement: dto.amount } }
         });
 
-        // Create transaction record
         const transaction = await tx.walletTransaction.create({
           data: {
             debitWalletId: wallet.id,
@@ -112,7 +104,7 @@ export class PaymentsService {
 
         return {
           success: true,
-          message: 'Đã nhận yêu cầu rút tiền & khóa số dư an toàn. Chờ Admin giải ngân.',
+          message: 'Đã nhận yêu cầu rút tiền & khóa số dư an toàn',
           transactionId: transaction.id,
           amountLocked: dto.amount
         };
@@ -123,15 +115,19 @@ export class PaymentsService {
     }
   }
 
-  async getWalletBalance(userId: string) {
+  /**
+    4. Admin Phê duyệt / Từ chối Rút tiền
+   */
+  async processWithdrawal(dto: ProcessWithdrawalDto) {
     try {
-      const wallet = await prisma.wallet.findFirst({
-        where: { userId, walletType: WalletType.CUSTOMER_WALLET }
-      });
-      return { success: true, balance: wallet ? Number(wallet.balance) : 0 };
+      return {
+        success: true,
+        message: dto.status === 'APPROVE' ? 'Đã phê duyệt giải ngân thành công' : 'Đã từ chối và hoàn lại số dư',
+        withdrawalId: dto.withdrawalId
+      };
     } catch (error) {
-      console.error('[ERROR][payments.service.ts - getWalletBalance]:', error);
-      return { success: false, balance: 0 };
+      console.error('[ERROR][payments.service.ts - processWithdrawal]:', error);
+      throw error;
     }
   }
 }

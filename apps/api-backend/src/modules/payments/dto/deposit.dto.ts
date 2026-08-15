@@ -8,7 +8,15 @@ export class RequestDepositDto {
 }
 
 export class ApproveDepositDto {
-  @IsNotEmpty({ message: 'Mã giao dịch nạp tiền' })
+  @IsNotEmpty({ message: 'Mã người dùng nạp tiền' })
+  @IsString()
+  targetUserId: string;
+
+  @IsNotEmpty({ message: 'Mã tham chiếu giao dịch VietQR' })
   @IsString()
   transactionId: string;
+
+  @IsNotEmpty({ message: 'Số tiền nạp được duyệt' })
+  @IsNumber()
+  amount: number;
 }

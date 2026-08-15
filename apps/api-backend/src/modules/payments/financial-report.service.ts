@@ -4,7 +4,7 @@ import { prisma } from '@tq-platform/database';
 @Injectable()
 export class FinancialReportService {
   /**
-    Báo cáo P&L (Lợi nhuận ròng, GMV, Phí sàn, Trợ giá Voucher)
+    1. Báo cáo P&L (GMV, Phí sàn, Chi phí trợ giá, Lợi nhuận ròng)
    */
   async getProfitAndLossReport(startDate?: string, endDate?: string) {
     try {
@@ -13,7 +13,7 @@ export class FinancialReportService {
       });
 
       const totalGMV = orders.reduce((sum, o) => sum + Number(o.total), 0);
-      const platformCommission = totalGMV * 0.15; // 15% phí sàn trung bình
+      const platformCommission = totalGMV * 0.15; // 15% phí sàn mặc định
       const totalVoucherSubsidy = orders.reduce((sum, o) => sum + Number(o.discount), 0);
       const netProfit = platformCommission - totalVoucherSubsidy;
 
@@ -35,7 +35,7 @@ export class FinancialReportService {
   }
 
   /**
-    Khấu trừ tự động Thuế GTGT & Thuế TNCN cho Tài xế / Shop theo kỳ kế toán
+    2. Khấu trừ tự động Thuế GTGT & Thuế TNCN cho Tài xế / Shop theo kỳ kế toán
     - Tài xế: 1.5% tổng thu nhập (1% GTGT + 0.5% TNCN)
     - Shop: 1.0% tổng doanh thu (0.5% GTGT + 0.5% TNCN)
    */
@@ -73,7 +73,7 @@ export class FinancialReportService {
   }
 
   /**
-    Xuất danh sách Báo cáo P&L & Giao dịch tài chính ra file định dạng CSV
+    3. Xuất file CSV Báo cáo P&L & Lịch sử Giao dịch
    */
   async exportFinancialReportCSV(): Promise<string> {
     try {

@@ -33,7 +33,6 @@ export class XuRewardsService {
           throw new BadRequestException('Hành vi thưởng Xu không hợp lệ');
       }
 
-      // Calculate total accumulated Xu from logs
       const lastLog = await prisma.xuLog.findFirst({
         where: { userId },
         orderBy: { createdAt: 'desc' }
@@ -42,7 +41,6 @@ export class XuRewardsService {
       const currentBalance = lastLog ? lastLog.balance : 0;
       const newBalance = currentBalance + rewardAmount;
 
-      // Audit log into xu_logs table
       const xuLog = await prisma.xuLog.create({
         data: {
           userId,

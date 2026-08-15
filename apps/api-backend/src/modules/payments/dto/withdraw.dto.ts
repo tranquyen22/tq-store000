@@ -19,8 +19,12 @@ export class RequestWithdrawalDto {
   bankAccountName: string;
 }
 
-export class ApproveWithdrawalDto {
+export class ProcessWithdrawalDto {
   @IsNotEmpty({ message: 'Mã yêu cầu rút tiền' })
   @IsString()
   withdrawalId: string;
+
+  @IsNotEmpty({ message: 'Trạng thái xử lý: APPROVE hoặc REJECT' })
+  @IsString()
+  status: 'APPROVE' | 'REJECT';
 }

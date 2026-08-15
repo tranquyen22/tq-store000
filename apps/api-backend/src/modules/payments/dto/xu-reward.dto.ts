@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export enum XuActionType {
   PRODUCT_REVIEW_WITH_IMAGE = 'PRODUCT_REVIEW_WITH_IMAGE',
