@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
-    "@tq-platform/types": "workspace:*"
+    "@tq-platform/types": "file:../types"
   },
   "devDependencies": {
     "prisma": "^5.10.2",
