@@ -1,85 +1,96 @@
 'use client';
 
 import React from 'react';
-import { Star, Clock, ShieldCheck, MapPin, Car, ShoppingCart } from 'lucide-react';
+import { Star, Clock, MapPin, ShieldCheck } from 'lucide-react';
 import { formatVND } from '@tq-platform/utils';
-import { ServiceCardData } from '../types';
 
-interface ProductCardProps {
-  item: ServiceCardData;
-  onAddToCart?: (item: ServiceCardData) => void;
+export interface ProductCardProps {
+  id: string;
+  title: string;
+  price: number;
+  serviceType: 'RENTAL' | 'FOOD' | 'PRODUCT' | 'TAXI';
+  rating: number;
+  reviewsCount: number;
+  depositPrice?: number;
+  distanceKm?: number;
+  deliveryTimeMins?: number;
+  shopName: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ item, onAddToCart }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  title,
+  price,
+  serviceType,
+  rating,
+  reviewsCount,
+  depositPrice,
+  distanceKm = 1.2,
+  deliveryTimeMins = 25,
+  shopName
+}) => {
   return (
-    <div className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden hover:shadow-xl hover:border-sky-500/40 hover:-translate-y-1 transition-all duration-300 flex flex-col">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
       
-      {/* Card Image Banner */}
-      <div className="relative h-48 bg-slate-100 dark:bg-slate-900 overflow-hidden cursor-pointer">
-        <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-        
-        {item.badge && (
-          <span className="absolute top-3 left-3 bg-gradient-to-r from-sky-500 to-pink-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-md">
-            {item.badge}
-          </span>
-        )}
+      <div>
+        {/* Badges based on Service Type */}
+        <div className="flex justify-between items-center mb-2">
+          {serviceType === 'RENTAL' && (
+            <span className="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 text-[10px] font-extrabold">
+              Cho thuê trang phục
+            </span>
+          )}
 
-        {item.distanceKm && (
-          <span className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-            <MapPin className="w-3 h-3 text-sky-400" /> Cách {item.distanceKm} km
+          {serviceType === 'FOOD' && (
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[10px] font-extrabold flex items-center gap-1">
+              <Clock className="w-3 h-3 text-amber-500" /> Giao 30P
+            </span>
+          )}
+
+          {serviceType === 'PRODUCT' && (
+            <span className="px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/30 text-[10px] font-extrabold">
+              Sản phẩm chính hãng
+            </span>
+          )}
+
+          <span className="text-[11px] text-slate-400 font-bold flex items-center gap-0.5">
+            <MapPin className="w-3 h-3 text-slate-400" /> {distanceKm} km
           </span>
-        )}
+        </div>
+
+        {/* Product Title */}
+        <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-2 mb-1 group-hover:text-sky-500 transition-colors">
+          {title}
+        </h3>
+        <p className="text-[11px] text-slate-400 font-medium mb-3">{shopName}</p>
+
+        {/* Rating & Reviews */}
+        <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-3">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span>{rating}</span>
+          <span className="text-slate-400 font-normal">({reviewsCount} đánh giá)</span>
+        </div>
       </div>
 
-      {/* Card Content */}
-      <div className="p-4 flex flex-col flex-1">
-        <h4 className="font-bold text-slate-900 dark:text-white text-xs line-clamp-2 mb-1.5 h-8 leading-snug group-hover:text-sky-500 transition-colors">
-          {item.title}
-        </h4>
-
-        {/* Dynamic Service Meta Info */}
-        {item.type === 'RENTAL' && item.depositAmount && (
-          <div className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-1 rounded-md mb-2 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Tiền cọc: <strong>{formatVND(item.depositAmount)}</strong></span>
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60">
+        {/* Rental Specific Deposit Display */}
+        {serviceType === 'RENTAL' && depositPrice && (
+          <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded-xl text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-2 border border-purple-500/20 flex items-center justify-between">
+            <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> Tiền cọc:</span>
+            <strong>{formatVND(depositPrice)}</strong>
           </div>
         )}
 
-        {item.type === 'FOOD' && item.deliveryTime && (
-          <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md mb-2 inline-flex items-center gap-1 w-max">
-            <Clock className="w-3.5 h-3.5" /> Giao hàng trong {item.deliveryTime}
-          </div>
-        )}
-
-        {item.type === 'TAXI' && item.vehicleType && (
-          <div className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded-md mb-2 inline-flex items-center gap-1 w-max">
-            <Car className="w-3.5 h-3.5" /> Dịch vụ: {item.vehicleType}
-          </div>
-        )}
-
-        {/* Rating */}
-        <div className="flex items-center gap-1 text-amber-400 text-xs mb-3">
-          <Star className="w-3.5 h-3.5 fill-amber-400" />
-          <span className="font-bold text-slate-700 dark:text-slate-300">{item.rating}</span>
-          <span className="text-slate-400">({item.reviewsCount})</span>
-        </div>
-
-        {/* Price & Action Button */}
-        <div className="mt-auto pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+        {/* Price & Action */}
+        <div className="flex items-center justify-between">
           <div>
-            <span className="text-sm font-extrabold text-sky-600 dark:text-sky-400">{formatVND(item.price)}</span>
-            {item.originalPrice && <span className="text-[10px] text-slate-400 line-through block">{formatVND(item.originalPrice)}</span>}
+            <span className="text-[10px] text-slate-400 block font-bold">Giá dịch vụ:</span>
+            <strong className="text-sm font-black text-sky-500">{formatVND(price)}</strong>
           </div>
 
-          <button
-            onClick={() => onAddToCart && onAddToCart(item)}
-            className="p-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl transition-colors"
-            title="Thêm giỏ hàng / Chọn dịch vụ"
-          >
-            <ShoppingCart className="w-4 h-4" />
+          <button className="px-3.5 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold shadow transition-all">
+            {serviceType === 'RENTAL' ? 'Thuê ngay' : 'Đặt hàng'}
           </button>
         </div>
-
       </div>
 
     </div>

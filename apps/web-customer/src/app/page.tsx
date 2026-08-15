@@ -5,41 +5,36 @@ import { Header } from '../components/Header';
 import { GeoFilter } from '../components/GeoFilter';
 import { CategoryGrid } from '../components/CategoryGrid';
 import { ServiceGrid } from '../components/ServiceGrid';
-import { useGeolocation } from '../hooks/useGeolocation';
 
 export default function CustomerHomePage() {
-  const { location, updateManualLocation } = useGeolocation();
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
       
-      {/* Header & Scope Search */}
+      {/* Header with Scope Search Bar & Wallet Badges */}
       <Header
         isLoggedIn={true}
-        userName="Nguyễn Văn A"
-        walletBalance={1500000}
-        xuBalance={250}
-        onSearch={(query, scope) => {
-          alert(`Tìm kiếm [Scope: ${scope}]: "${query}" tại ${location.districtName}`);
-        }}
+        tqPayBalance={1500000}
+        tqXuBalance={3500}
+        userName="Trần Văn Quyền"
       />
 
-      {/* Geolocation Filter */}
-      <GeoFilter
-        location={location}
-        onLocationChange={updateManualLocation}
-        onRefreshGeo={() => alert(`Đã làm mới gợi ý vị trí ${location.districtName}`)}
-      />
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+        
+        {/* Geolocation Filter & Cascading Dropdowns */}
+        <GeoFilter />
 
-      {/* Hero Banner & Categories Grid */}
-      <main className="flex-1">
+        {/* 3x4 Utility Category Matrix (12 Icons) */}
         <CategoryGrid />
-        <ServiceGrid location={location} />
+
+        {/* "Gợi Ý Hôm Nay" Recommendations Grid */}
+        <ServiceGrid />
+
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-400 mt-12">
-        <p>&copy; 2026 TQ Platform Super App. All rights reserved.</p>
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-400">
+        <p>&copy; 2026 TQ Platform Customer Web Application. All rights reserved.</p>
       </footer>
 
     </div>

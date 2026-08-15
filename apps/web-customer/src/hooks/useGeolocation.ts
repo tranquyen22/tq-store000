@@ -1,57 +1,53 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { LocationState } from '../types';
+
+export interface LocationState {
+  latitude: number | null;
+  longitude: number | null;
+  provinceName: string;
+  districtName: string;
+  status: 'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR';
+  errorMsg?: string;
+}
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState<LocationState>({
-    latitude: 10.7769, // Default HCM City
+    latitude: 10.7769,
     longitude: 106.7009,
-    provinceCode: '79',
-    provinceName: 'TP. Hồ Chí Minh',
-    districtCode: '760',
+    provinceName: 'Thành phố Hồ Chí Minh',
     districtName: 'Quận 1',
-    isGpsActive: false,
-    statusText: 'Đang xác định GPS...'
+    status: 'IDLE'
   });
 
-  useEffect(() => {
+  const requestGPS = () => {
     if (!navigator.geolocation) {
-      setLocation(prev => ({ ...prev, statusText: 'Trình duyệt không hỗ trợ GPS' }));
+      setLocation(prev => ({ ...prev, status: 'ERROR', errorMsg: 'Trình duyệt không hỗ trợ GPS' }));
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation(prev => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          isGpsActive: true,
-          statusText: 'GPS Tự Động Ready'
-        }));
-      },
-      (error) => {
-        console.warn('[WARN][useGeolocation.ts]: GPS Permission Denied', error.message);
-        setLocation(prev => ({
-          ...prev,
-          isGpsActive: false,
-          statusText: 'Chọn vùng thủ công'
-        }));
-      },
-      { timeout: 8000, enableHighAccuracy: true }
-    );
-  }, []);
+    setLocation(prev => ({ ...prev, status: 'LOADING' }));
 
-  const updateManualLocation = (provinceCode: string, provinceName: string, districtCode: string, districtName: string) => {
-    setLocation(prev => ({
-      ...prev,
-      provinceCode,
-      provinceName,
-      districtCode,
-      districtName,
-      isGpsActive: false,
-      statusText: `${districtName}, ${provinceName}`
-    }));
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          provinceName: 'Thành phố Hồ Chí Minh',
+          districtName: 'Quận 1',
+          status: 'SUCCESS'
+        });
+      },
+      (err) => {
+        setLocation(prev => ({ ...prev, status: 'ERROR', errorMsg: err.message }));
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
   };
 
-  return { location, updateManualLocation };
+  useEffect(() => {
+    requestGPS();
+  }, []);
+
+  return { location, setLocation, requestGPS };
 };
