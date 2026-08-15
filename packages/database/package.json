@@ -1,0 +1,22 @@
+{
+  "name": "@tq-platform/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "@tq-platform/types": "workspace:*"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.2",
+    "typescript": "^5.3.3"
+  }
+}

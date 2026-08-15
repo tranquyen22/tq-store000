@@ -1,29 +1,26 @@
 {
-  "name": "tq-store-realtime",
+  "name": "tq-platform-monorepo",
   "private": true,
-  "version": "2.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.8",
-    "lucide-react": "^0.344.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "zod": "^3.22.4"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "db:generate": "turbo run db:generate",
+    "db:push": "turbo run db:push",
+    "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.1.6"
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

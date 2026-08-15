@@ -1,0 +1,89 @@
+export enum UserRole {
+  CUSTOMER = 'CUSTOMER',
+  DRIVER = 'DRIVER',
+  SHOP_OWNER = 'SHOP_OWNER',
+  STAFF = 'STAFF',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
+}
+
+export enum ShopServiceType {
+  RENTAL = 'RENTAL',             // Thuê quần áo & trang phục
+  FASHION = 'FASHION',           // Shop thời trang
+  FOOD_BEVERAGE = 'FOOD_BEVERAGE', // Đồ ăn - Đồ uống
+  BEAUTY = 'BEAUTY',             // Dịch vụ & Mỹ phẩm làm đẹp
+}
+
+export enum DriverServiceType {
+  BIKE_TAXI = 'BIKE_TAXI',       // Xe ôm công nghệ
+  CAR_TAXI = 'CAR_TAXI',         // Taxi 4 chỗ / 7 chỗ
+  EXPRESS_DELIVERY = 'EXPRESS_DELIVERY', // Giao hàng siêu tốc
+  FOOD_DELIVERY = 'FOOD_DELIVERY', // Giao đồ ăn
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED',
+}
+
+export enum RideStatus {
+  SEARCHING = 'SEARCHING',
+  ACCEPTED = 'ACCEPTED',
+  DRIVER_ARRIVED = 'DRIVER_ARRIVED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum WalletType {
+  CUSTOMER_WALLET = 'CUSTOMER_WALLET',
+  DRIVER_WALLET = 'DRIVER_WALLET',
+  SHOP_WALLET = 'SHOP_WALLET',
+  PLATFORM_COMMISSION_WALLET = 'PLATFORM_COMMISSION_WALLET',
+}
+
+export enum TransactionType {
+  DEPOSIT = 'DEPOSIT',
+  WITHDRAWAL = 'WITHDRAWAL',
+  RIDE_PAYMENT = 'RIDE_PAYMENT',
+  ORDER_PAYMENT = 'ORDER_PAYMENT',
+  COMMISSION_DEDUCTION = 'COMMISSION_DEDUCTION',
+  REFUND = 'REFUND',
+  REWARD_XU = 'REWARD_XU',
+}
+
+export enum AuditAction {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+  MASKED_VIEW = 'MASKED_VIEW',
+  APPROVE_SHOP = 'APPROVE_SHOP',
+  SUSPEND_USER = 'SUSPEND_USER',
+  FINANCIAL_TRANSFER = 'FINANCIAL_TRANSFER',
+}
+
+export enum SOSAlertStatus {
+  TRIGGERED = 'TRIGGERED',
+  IN_REVIEW = 'IN_REVIEW',
+  RESOLVED = 'RESOLVED',
+  FALSE_ALARM = 'FALSE_ALARM',
+}
+
+export enum TicketStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+}
+
+export enum PaymentMethod {
+  COD = 'COD',
+  MOMO_QR = 'MOMO_QR',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  TQ_WALLET = 'TQ_WALLET',
+}
